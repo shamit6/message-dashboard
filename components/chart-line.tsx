@@ -1,6 +1,5 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
 import {
   CartesianGrid,
   Legend,
@@ -10,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { format } from 'date-fns';
 import {
   Card,
   CardContent,
@@ -21,24 +21,22 @@ import {
 import type { ChartConfig } from '@/components/ui/chart';
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
+import type { CommentOverTimeQueryResult } from '@/lib/databrick';
 // import { AuthProvider } from '@descope/react-sdk/flows';
 
-const chartData = [
-  { month: 'January', desktop: 186, mobile: 80 },
-  { month: 'February', desktop: 305, mobile: 200 },
-  { month: 'March', desktop: 237, mobile: 120 },
-  { month: 'April', desktop: 73, mobile: 190 },
-  { month: 'May', desktop: 209, mobile: 130 },
-  { month: 'June', desktop: 214, mobile: 140 },
-];
-
 const chartConfig = {
-  cnt: {
-    label: 'cnt',
+  today: {
+    label: 'today',
     color: 'hsl(var(--chart-1))',
+  },
+  expected: {
+    label: 'expected',
+    color: 'hsl(var(--chart-2))',
   },
   time_bin: {
     label: 'time_bin',
@@ -46,32 +44,38 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartLine({ data }: { data: any }) {
-  const chartData = data.map((item: any) => {
+export function ChartLine({
+  todayMessagesAmount,
+  expectedCommentsOverTime,
+}: {
+  todayMessagesAmount: CommentOverTimeQueryResult;
+  expectedCommentsOverTime: CommentOverTimeQueryResult;
+}) {
+  const chartData = todayMessagesAmount.map((item, index) => {
     return {
       time_bin: item.time_bin,
-      cnt: item.cnt === 0 ? undefined : item.cnt,
+      today: item.cnt === 0 ? undefined : item.cnt,
+      expected: expectedCommentsOverTime[index]?.cnt,
     };
-  });
+  }) as { time_bin: string; today: number }[];
 
-  console.log('linechartdata', { chartData, chartConfig });
-  // @ts-expect-error find max time with cnt
   const currentTime = chartData.reduce(
-    (acc, cur) => (cur.cnt > 0 ? cur : acc),
+    // @ts-expect-error
+    (acc, cur) => (cur.today > 0 ? cur : acc),
     0,
   ).time_bin;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Line Chart - Multiple</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Comments Over Time</CardTitle>
+        <CardDescription>{format(new Date(), 'PP')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
-            data={chartData ?? []}
+            data={chartData}
             margin={{
               left: 12,
               right: 12,
@@ -93,10 +97,18 @@ export function ChartLine({ data }: { data: any }) {
               cursor={false}
             />
             <Line
-              dataKey="cnt"
+              dataKey="expected"
               dot={false}
-              stroke="var(--color-cnt)"
+              stroke="var(--color-expected)"
+              // strokeDasharray="3 3"
               strokeWidth={2}
+              type="monotone"
+            />
+            <Line
+              dataKey="today"
+              dot={false}
+              stroke="var(--color-today)"
+              strokeWidth={3}
               type="monotone"
             />
             <ReferenceLine
@@ -104,6 +116,7 @@ export function ChartLine({ data }: { data: any }) {
               strokeDasharray={3}
               x={currentTime ?? 0}
             />
+            <ChartLegend content={<ChartLegendContent />} />
           </LineChart>
         </ChartContainer>
       </CardContent>

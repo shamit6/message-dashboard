@@ -1,18 +1,42 @@
+'use client';
+import { useEffect, useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { ChartBar } from '@/components/chart-bar';
 import { ChartLine } from '@/components/chart-line';
-import { ChartMultiLine } from '@/components/chart-multi-line';
+import type {
+  CommentOverTimeQueryResult,
+  SentimentChartQueryResult,
+} from '@/lib/databrick';
 import { fetch } from '@/lib/databrick';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ModeToggle } from '@/components/mode-toggle';
 
-export default async function ProductsPage() {
+export default function ProductsPage() {
+  const [querys, setQuerys] = useState<{
+    totalMessageQueryResult: number;
+    commentsOverTimeQueryResult: CommentOverTimeQueryResult;
+    sentimentChartQueryResult: SentimentChartQueryResult;
+    expectedCommentsOverTimeResult: CommentOverTimeQueryResult;
+  }>({
+    totalMessageQueryResult: 0,
+    commentsOverTimeQueryResult: [],
+    sentimentChartQueryResult: [],
+    expectedCommentsOverTimeResult: [],
+  });
+
+  useEffect(() => {
+    fetch().then(setQuerys);
+    const interval = setInterval(() => {
+      fetch().then(setQuerys);
+      return () => {
+        clearInterval(interval);
+      };
+    }, 5000);
+  }, []);
   const {
-    lineChartQueryResult,
+    commentsOverTimeQueryResult,
     sentimentChartQueryResult,
-    // sentimentOverTimeQueryResult,
     totalMessageQueryResult,
-  } = await fetch();
+    expectedCommentsOverTimeResult,
+  } = querys;
 
   return (
     <Tabs defaultValue="all">
@@ -21,7 +45,10 @@ export default async function ProductsPage() {
       </span>
       <TabsContent value="all">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          <ChartLine data={lineChartQueryResult} />
+          <ChartLine
+            expectedCommentsOverTime={expectedCommentsOverTimeResult}
+            todayMessagesAmount={commentsOverTimeQueryResult}
+          />
           <ChartBar data={sentimentChartQueryResult} />
           {/* <ChartMultiLine data={sentimentOverTimeQueryResult} /> */}
         </div>

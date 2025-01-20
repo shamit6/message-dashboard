@@ -1,0 +1,19 @@
+diff --git a/lib/utils.js b/lib/utils.js
+index e83b6115023fd92c1054024adb60de5cc6133193..b003423ff4efa191c9ce430ee110dcb8a6424d78 100644
+--- a/lib/utils.js
++++ b/lib/utils.js
+@@ -1,7 +1,7 @@
+ /**
+  * Native bindings
+  */
+-var XXH = require('../build/Release/xxhash')
++var XXH = require('../build/Release/xxhash.node')
+ 
+ var CHECKSUM_SEED = 0
+ 
+@@ -37,4 +37,4 @@ exports.readUInt32LE = function (buffer, offset) {
+ 	return val >>> 0;
+ }
+ 
+-exports.bindings = require('../build/Release/lz4')
++exports.bindings = require('../build/Release/lz4.node')
