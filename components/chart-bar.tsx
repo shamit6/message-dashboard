@@ -1,7 +1,7 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { format } from 'date-fns';
 import {
   Card,
   CardContent,
@@ -40,34 +40,42 @@ export function ChartBar({ data }: { data: any }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sentiment Distribution</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle className="text-5xl">Sentiment Distribution</CardTitle>
+        <CardDescription className="text-2xl">{format(new Date(), 'PP')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
-              axisLine={false}
               dataKey="sentiment"
-              tickFormatter={(value) => value.slice(0, 12)}
+              fontSize={28}
+              tickFormatter={(value) => value}
               tickLine={false}
               tickMargin={10}
             />
-
-            <YAxis />
+            <YAxis
+              fontSize={24}
+              tickCount={5}
+              tickFormatter={(value) =>
+                value.toLocaleString('en-US', {
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                })
+              }
+            />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <Bar
               dataKey="cnt"
               label={(a) => {
-                const { x, y, value, className } = a;
+                const { x, y, value, className, viewBox } = a;
                 return (
                   <text
                     className={className}
-                    fill="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    x={x + 16}
-                    y={y - 10}
+                    fill="hsl(var(--muted))"
+                    fontSize={28}
+                    x={x + viewBox.width / 2 - 40}
+                    y={y + 30}
                   >
                     {value.toLocaleString()}
                   </text>

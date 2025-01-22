@@ -14,7 +14,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -49,13 +48,13 @@ export function ChartLine({
   expectedCommentsOverTime,
 }: {
   todayMessagesAmount: CommentOverTimeQueryResult;
-  expectedCommentsOverTime: CommentOverTimeQueryResult;
+  expectedCommentsOverTime?: CommentOverTimeQueryResult;
 }) {
   const chartData = todayMessagesAmount.map((item, index) => {
     return {
       time_bin: item.time_bin,
       today: item.cnt === 0 ? undefined : item.cnt,
-      expected: expectedCommentsOverTime[index]?.cnt,
+      expected: expectedCommentsOverTime?.[index]?.cnt,
     };
   }) as { time_bin: string; today: number }[];
 
@@ -68,8 +67,10 @@ export function ChartLine({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Comments Over Time</CardTitle>
-        <CardDescription>{format(new Date(), 'PP')}</CardDescription>
+        <CardTitle className="text-5xl">Comments Over Time</CardTitle>
+        <CardDescription className="text-2xl">
+          {format(new Date(), 'PP')}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -82,10 +83,18 @@ export function ChartLine({
             }}
           >
             <CartesianGrid vertical={false} />
-            <YAxis />
+            <YAxis
+              fontSize={28}
+              tickFormatter={(value) =>
+                value.toLocaleString('en-US', {
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                })
+              }
+            />
             <XAxis
-              axisLine={false}
               dataKey="time_bin"
+              fontSize={24}
               interval={35}
               tickFormatter={(value) => value.slice(11, 16)}
               tickLine={false}
@@ -100,7 +109,7 @@ export function ChartLine({
               dataKey="expected"
               dot={false}
               stroke="var(--color-expected)"
-              // strokeDasharray="3 3"
+              strokeDasharray="3 2"
               strokeWidth={2}
               type="monotone"
             />
@@ -116,7 +125,10 @@ export function ChartLine({
               strokeDasharray={3}
               x={currentTime ?? 0}
             />
-            <ChartLegend content={<ChartLegendContent />} />
+            <ChartLegend
+              content={<ChartLegendContent className="text-4xl" />}
+              iconSize={40}
+            />
           </LineChart>
         </ChartContainer>
       </CardContent>
