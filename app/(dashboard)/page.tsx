@@ -33,7 +33,7 @@ export default function ProductsPage() {
     expectedCommentsOverTimeResult: [],
     prevTotalMessage: 0,
   });
-  const [lastUpdate, setLastUpdate] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   useEffect(() => {
     fetch().then(setQuerys);
