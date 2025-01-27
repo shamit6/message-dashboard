@@ -19,7 +19,9 @@ export interface QueriesResult {
   expectedCommentsOverTimeResult: CommentOverTimeQueryResult;
 }
 
-const fetchIntervalInSec: number = Number(process.env.NEXT_PUBLIC_FETCH_INTERVAL_IN_SEC ?? 30);
+const fetchIntervalInSec = Number(
+  process.env.NEXT_PUBLIC_FETCH_INTERVAL_IN_SEC ?? 30,
+);
 
 export default function ProductsPage() {
   const [querys, setQuerys] = useState<
@@ -31,7 +33,7 @@ export default function ProductsPage() {
     expectedCommentsOverTimeResult: [],
     prevTotalMessage: 0,
   });
-  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [lastUpdate, setLastUpdate] = useState(null);
 
   useEffect(() => {
     fetch().then(setQuerys);
@@ -68,11 +70,10 @@ export default function ProductsPage() {
           formattingFn={(value) => value.toLocaleString()}
           start={prevTotalMessage || totalMessageQueryResult}
           useEasing={false}
-
         >
           {({ countUpRef }) => (
             <span
-              className="text-8xl font-bold flex items-center justify-center h-48 min-w-[5.5em]"
+              className="text-8xl text-left font-bold flex items-center justify-start h-48 min-w-[5.5em] ml-4"
               ref={countUpRef}
             />
           )}
@@ -81,7 +82,9 @@ export default function ProductsPage() {
 
       <TabsContent value="all">
         <div className="p-2">
-          Last update at {formatInTimeZone(lastUpdate, 'UTC', 'HH:mm:ss')} UTC
+          {lastUpdate === null
+            ? ''
+            : `Last update at ${formatInTimeZone(lastUpdate, 'UTC', 'HH:mm:ss')} UTC`}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           <ChartLine

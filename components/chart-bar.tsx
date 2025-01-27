@@ -41,7 +41,9 @@ export function ChartBar({ data }: { data: any }) {
     <Card>
       <CardHeader>
         <CardTitle className="text-5xl">Sentiment Distribution</CardTitle>
-        <CardDescription className="text-2xl">{format(new Date(), 'PP')}</CardDescription>
+        <CardDescription className="text-2xl">
+          {format(new Date(), 'PP')}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -66,12 +68,12 @@ export function ChartBar({ data }: { data: any }) {
             />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <Bar
+              isAnimationActive={false}
               dataKey="cnt"
-              label={(a) => {
-                const { x, y, value, className, viewBox } = a;
+              label={({ x, y, value, className, viewBox }) => {
                 return (
                   <text
-                    className={className}
+                    // className={className}
                     fill="hsl(var(--muted))"
                     fontSize={28}
                     x={x + viewBox.width / 2 - 40}

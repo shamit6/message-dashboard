@@ -125,22 +125,22 @@ async function CommentsOverTimeQuery(session: IDBSQLSession) {
     session,
     `WITH time_bins AS (
     SELECT
-        from_unixtime(UNIX_TIMESTAMP(CURRENT_DATE) + (s.id * 300)) AS time_bin
+        from_unixtime(UNIX_TIMESTAMP(CURRENT_DATE) + (s.id * 60)) AS time_bin
     FROM (
-        SELECT EXPLODE(SEQUENCE(0, 287)) AS id -- 288 intervals of 5 minutes in a day
+        SELECT EXPLODE(SEQUENCE(0, 24 * 60 - 1)) AS id -- 24 hours, 60 minutes
     ) s
 ),
 ranked_bins AS (
     SELECT
-        from_unixtime(floor(unix_timestamp(written_at) / 300) * 300) AS time_bin,
+        from_unixtime(floor(unix_timestamp(written_at) / 60) * 60) AS time_bin,
         COUNT(*) AS cnt,
-        ROW_NUMBER() OVER (ORDER BY from_unixtime(floor(unix_timestamp(written_at) / 300) * 300) DESC) AS rank
+        ROW_NUMBER() OVER (ORDER BY from_unixtime(floor(unix_timestamp(written_at) / 60) * 60) DESC) AS rank
     FROM
         data_catalog_dev.default.unique_messages_v2
     WHERE
         DATE(written_date) = CURRENT_DATE()
     GROUP BY
-        from_unixtime(floor(unix_timestamp(written_at) / 300) * 300)
+        from_unixtime(floor(unix_timestamp(written_at) / 60) * 60)
 ),
 filtered_bins AS (
     SELECT
@@ -263,15 +263,15 @@ async function expectedMessagesByInterval(session: IDBSQLSession) {
   return query(
     session,
     `select interval, floor(avg(cnt)) as cnt from (
-        SELECT  from_unixtime(floor(unix_timestamp(written_at) / 300) * 300) AS time_bin,
-                date_format(from_unixtime(floor(unix_timestamp(written_at) / 300) * 300), "HH:mm:ss") as interval,
+        SELECT  from_unixtime(floor(unix_timestamp(written_at) / 60) * 60) AS time_bin,
+                date_format(from_unixtime(floor(unix_timestamp(written_at) / 60) * 60), "HH:mm:ss") as interval,
                 COUNT(*) AS cnt
         FROM
           data_catalog_dev.default.unique_messages_v2
         WHERE
           DATE(written_date) between CURRENT_DATE() - interval 7 days and CURRENT_DATE() - interval 1 days
         GROUP BY
-          from_unixtime(floor(unix_timestamp(written_at) / 300) * 300)
+          from_unixtime(floor(unix_timestamp(written_at) / 60) * 60)
       )
     group by interval
     order by interval asc;`,

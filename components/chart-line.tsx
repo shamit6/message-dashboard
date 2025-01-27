@@ -32,10 +32,22 @@ const chartConfig = {
   today: {
     label: 'today',
     color: 'hsl(var(--chart-1))',
+    icon: () => (
+      <div
+        className="w-4 h-4 m-2y bg-[hsl(var(--chart-1))]"
+        style={{ borderRadius: '4px' }}
+      />
+    ),
   },
   expected: {
     label: 'expected',
     color: 'hsl(var(--chart-2))',
+    icon: () => (
+      <div
+        className="w-4 h-4 my-2 bg-[hsl(var(--chart-2))]"
+        style={{ borderRadius: '4px' }}
+      />
+    ),
   },
   time_bin: {
     label: 'time_bin',
@@ -80,22 +92,32 @@ export function ChartLine({
             margin={{
               left: 12,
               right: 12,
+              bottom: 24,
             }}
           >
             <CartesianGrid vertical={false} />
             <YAxis
               fontSize={28}
+              label={{
+                value: 'messages / mintue',
+                style: { textAnchor: 'middle', fontSize: 30 },
+                angle: -90,
+                position: 'left',
+                offset: 0,
+              }}
               tickFormatter={(value) =>
                 value.toLocaleString('en-US', {
                   notation: 'compact',
                   compactDisplay: 'short',
                 })
               }
+              vertAdvY={4}
+              width={80}
             />
             <XAxis
               dataKey="time_bin"
               fontSize={24}
-              interval={35}
+              interval={179}
               tickFormatter={(value) => value.slice(11, 16)}
               tickLine={false}
               tickMargin={8}
@@ -126,8 +148,11 @@ export function ChartLine({
               x={currentTime ?? 0}
             />
             <ChartLegend
+              className="absolute right-0 -top-16 text-4xl"
               content={<ChartLegendContent className="text-4xl" />}
               iconSize={40}
+              verticalAlign="top"
+              // layout="radial"
             />
           </LineChart>
         </ChartContainer>
